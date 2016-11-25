@@ -15,13 +15,12 @@ Cheerinos is an Arduino serial communication library to make serial communicatio
 
 ## TODOs
 + Python Boost bindings
-+ Move simulated serial class out on main library
-+ Include a byte ring buffer for serial simulator
++ Wait for ACK/NACK
 + Test with 2 instances of cheerinos
 
 ## To run tests:
 1. First build with g++
-   + `g++ -o test cheerinos.cpp test.cpp`
+   + `g++ -o test ring_byte_buf.cpp sim_serial.cpp cheerinos.cpp test.cpp`
 2. Run test
    + `./test`
 
