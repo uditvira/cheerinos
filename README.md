@@ -16,6 +16,7 @@ Cheerinos is an Arduino serial communication library to make serial communicatio
 ## TODOs
 + Python Boost bindings
 + Wait for ACK/NACK
++ Implement CRC
 + Test with 2 instances of cheerinos
 
 ## To run tests:
