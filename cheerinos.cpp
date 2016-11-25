@@ -7,6 +7,7 @@ Implementation of the cheerinos class
 ****************************************************/
 #include <iostream>
 #include "cheerinos.h"
+#include "sim_serial.h"
 
 /*********************************************
  Implementation of public functions
@@ -17,9 +18,15 @@ cheerinos::cheerinos(uint8_t node_addr) {
 }
 
 CHError cheerinos::send(uint8_t to_addr, char* buf, uint8_t size) {
+  // first flush serial in to in_buffer
+  while (serial.available() > 0) {
+    in_buffer.enqueue(serial.read());
+  }
+  // build packet
   build_packet(to_addr, buf, size);
-  sim_write(_cur_tx_packet, _cur_tx_packet_size);
+  serial.write(_cur_tx_packet, _cur_tx_packet_size);
   debug("TX cheerinos: sending packet");
+  // TODO check to see if we get an ack!
   return SUCCESS;
 }
 
@@ -72,9 +79,12 @@ void cheerinos::debug(char* string) {
 
 void cheerinos::update() {
   char incoming;
-  if (sim_available() > 0) {
-    incoming = sim_read();
+  if (serial.available() > 0) {
+    in_buffer.enqueue(serial.read());
+  }
 
+  if (in_buffer.get_fill_level() > 0) {
+    incoming = in_buffer.dequeue();
     debug("RX cheerinos: found incoming byte");
     std::cout<<std::hex<<(unsigned int) incoming<<std::endl;
 
@@ -164,24 +174,6 @@ void cheerinos::send_nack() {
 
 void cheerinos::register_handler(on_receive_handler_function on_receive) {
   _on_receive = on_receive;
-}
-
-/******** SERIAL SIMULATOR STUFF ******/
-int cheerinos::sim_available() {
-  if (sim_buffer_index < MAX_PACKET_SIZE) {
-    return 1;
-  } else return 0;
-}
-
-char cheerinos::sim_read() {
-  char ret_char = sim_buffer[sim_buffer_index];
-  sim_buffer_index++;
-  return  ret_char;
-}
-
-void cheerinos::sim_write(char* buf, unsigned int size) {
-  memcpy(sim_buffer, buf, MAX_PACKET_SIZE);
-  sim_buffer_index = 0;
 }
 
 void cheerinos::sm_debug_packet(char* buf, uint8_t size) {

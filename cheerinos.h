@@ -3,10 +3,12 @@ Author: Udit Vira
 Date: November 17th, 2016
 
 */
-#include <iostream>
-
 #ifndef CHEERINOS_H
 #define CHEERINOS_H
+
+#include <iostream>
+#include "sim_serial.h"
+#include "ring_byte_buf.h"
 
 // NB. All sizes are in bytes.
 
@@ -48,6 +50,9 @@ Date: November 17th, 2016
 #define ETX 0x03
 #define EOT 0x04
 
+// FOR RING BUFS
+#define MAX_BUF_LEN  2*MAX_PACKET_SIZE
+
 enum CHError {
   SUCCESS,
   FAIL
@@ -87,6 +92,11 @@ class cheerinos {
   
   void sm_debug_packet(char* buf, uint8_t size);
 
+  // TODO:: possibly put in ifdef simulation mode
+  /***********  SERIAL SIMULATOR stuff *************/
+  sim_serial serial;
+  /*************************************************/
+
  private:
 
   uint8_t _node_addr;
@@ -105,17 +115,8 @@ class cheerinos {
   uint8_t sm_payload_size = 0;
   uint8_t sm_count = 0;
   /*************************************************/
-  
 
-  // TODO:: possibly put in ifdef simulation mode
-
-  /***********  SERIAL SIMULATOR stuff *************/
-  char sim_buffer[MAX_PACKET_SIZE];
-  unsigned int sim_buffer_index;
-  int  sim_available();
-  char sim_read();
-  void sim_write(char* buff, unsigned int size);
-  /*************************************************/
+  ring_byte_buf in_buffer;
 
   // handler function
   on_receive_handler_function _on_receive = NULL;

@@ -28,9 +28,13 @@ int main() {
   // set up simulation for serial receive simulator
   std::cout<<"main: starting receive simulator" <<std::endl;
   std::cout<<"main: -----------------------" <<std::endl;
+  char wire_delay[200];
+  unsigned int wire_length;
 
   // loop 50 times
   for (int i=0; i<50; i++) {
+    ch.serial.tx_out(wire_delay, wire_length);
+    ch.serial.rx_in(wire_delay, wire_length);
     ch.update();
   };
   return 0;
